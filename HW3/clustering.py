@@ -74,6 +74,15 @@ def k_means(points, k, init='random'):
         Instance of ClusterSet with k clusters
     """
     # TODO: Implement this function
+    c = ClusterSet()
+    cs = []
+    if init == 'random':
+        cs = random_init(points, k)
+    if init == 'kpp':
+        cs = k_means_pp_init(points, k)
+    
+
+
 
 def spectral_clustering(points, k):
     """
