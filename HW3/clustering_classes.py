@@ -36,14 +36,13 @@ class Point(object):
         res = 0
         #print(self.get_features())
         my_feature = self.get_features()
-        # print('---------')
-        # print(type(self))
-        # print(type(other))
-        # print('---------')
+       
         other_feature = other.get_features()
-        for i in range(len(my_feature)):
-            res += (my_feature[i] - other_feature[i]) ** 2
-        return sqrt(res)
+        diff = (my_feature - other_feature) ** 2
+        res = sqrt(np.sum(diff))
+        # for i in range(len(my_feature)):
+        #     res += ((my_feature[i] - other_feature[i]) ** 2)
+        return res
 
     def get_label(self):
         """Returns label"""
@@ -77,7 +76,7 @@ class Cluster(object):
         labels = [point.get_label() for point in self.points]
         cluster_label, count = stats.mode(labels)
         #print('count:{}'.format(count))
-        if count == []:
+        if len(count) == 0:
             count = 0
         return len(labels), np.float64(count)
 
@@ -87,15 +86,15 @@ class Cluster(object):
         points = self.get_points()
         #print(points[0].features.shape)
         #n, d = points[0].features.shape
-        features = points[0].features.shape
+        features = points[0].get_features()
         label = None
         for i in range(1, len(self.points)):
             #print(points[i].get_features().shape)
-            features += self.points[i].get_features()
-        features = features.astype(float)
+            features = features + self.points[i].get_features()
+        #features = features.astype(float)
         features /= len(self.points)
         p = Point(features, label)
-        #print(features)
+       # print(features)
         return p
         # TODO: Implement this function
 

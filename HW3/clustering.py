@@ -37,30 +37,26 @@ def k_means_pp_init(points, k):
     """
     # TODO: Implement this function
     cs = []
-    rand = np.random.randint(len(points),size = 1)
-    first_cen = points[rand[0]]
-    cs.append(first_cen)
-    assert(len(cs) == 1)
+    n = len(points)
+    prob = np.ones((n))/n
+    index = range(n)
     while len(cs) < k:
-        distance = []
+        #distance = []
+        i = random.choice(index, 1, p = prob, replace = False)
+        #print(i)
+        cs.append(points[i[0]])
+        count = 0
         for point in points:
-            dis = 100000
-            for c in cs:
-                new_dis = point.distance(c)
-                if new_dis < dis:
-                    dis = new_dis
-            distance.append(dis**2)
-        distance /= np.sum(distance)
-        for i in range(1,len(points)):
-            distance[i] += distance[i-1]
-        a = random.uniform(0,1)
-        for i in range(len(points)):
-            if distance[i] >= a :
-                cs.append(points[i])
-                break
-    assert(len(cs) == k)
+            dis = []
+            for j in range(len(cs)):
+                dis.append(point.distance(cs[j]))
+            d = np.amin(dis)
+            prob[count] = d**2
+            count += 1
+        prob /= sum(prob)
     return cs
         
+
 
 def k_means(points, k, init='random'):
     """
@@ -76,52 +72,58 @@ def k_means(points, k, init='random'):
         Instance of ClusterSet with k clusters
     """
     # TODO: Implement this function
-    c_set = ClusterSet()
-    assert(len(c_set.get_clusters()) == 0)
+    # c_set = ClusterSet()
+    # assert(len(c_set.get_clusters()) == 0)
     cs = []
     if init == 'random':
         cs = random_init(points, k)
     if init == 'kpp':
         cs = k_means_pp_init(points, k)
-    cluster = []
-    for i in range(k):
-        cluster.append([])
-    for point in points:
-        index = 0
-        dis = 1e30
-        for i in range(k):
-            if point.distance(cs[i]) < dis:
-                dis = point.distance(cs[i])
-                index = i
-        cluster[index].append(point)
-    for i in range(k):
-        c_set.add(Cluster(cluster[i]))
-    score = c_set.get_score()
-    next_score,c_temp = cal_next_score(points, k, c_set)
-    while(next_score > score):
+    # cluster = []
+    # for i in range(k):
+    #     cluster.append([])
+    # for point in points:
+    #     index = 0
+    #     dis = 1e300
+    #     for i in range(k):
+    #         if point.distance(cs[i]) < dis:
+    #             dis = point.distance(cs[i])
+    #             index = i
+    #     cluster[index].append(point)
+    # for i in range(k):
+    #     c_set.add(Cluster(cluster[i]))
+    c_set = ClusterSet()
+    score = 0
+    next_score,c_temp, cs = cal_next_score(points, k, cs)
+    while(not c_temp.equivalent(c_set)):
         c_set = c_temp
         score = next_score
-        next_score, c_temp = cal_next_score(points, k, c_set)
+        next_score, c_temp, cs = cal_next_score(points, k, cs)
     return c_set
 
-def cal_next_score(points, k, c_set):
-    cs = c_set.get_centroids()
+def cal_next_score(points, k, cs):
+    #print('----')
+    #cs = c_set.get_centroids()
     c_set = ClusterSet()
+    #c_set.get_clusters() = []
+    assert(len(c_set.get_clusters()) == 0)
     cluster = []
     for i in range(k):
         cluster.append([])
     for point in points:
         index = 0
-        dis = 1e30
+        dis = []
         for i in range(k):
-            if point.distance(cs[i]) < dis:
-                dis = point.distance(cs[i])
-                index = i
+           # print(cs[i].get_features())
+            dis.append(point.distance(cs[i]))   
+        index = dis.index(min(dis))
         cluster[index].append(point)
     for i in range(k):
+        assert(len(cluster[i]) > 0)
         c_set.add(Cluster(cluster[i]))
     score = c_set.get_score()
-    return score, c_set
+    cs = c_set.get_centroids()
+    return score, c_set, cs
 
 def spectral_clustering(points, k):
     """
@@ -157,7 +159,7 @@ def plot_performance(k_means_scores, kpp_scores, spec_scores, k_vals):
     """
     # TODO: Implement this function
     k = range(1,k_vals+1)
-    plt.plot(k, k_mean_scores, label = 'k_mean')
+    plt.plot(k, k_means_scores, label = 'k_mean')
     plt.plot(k, kpp_scores, label = 'kpp')
     plt.plot(k, spec_scores, label = 'spectral')
     plt.legend()
@@ -198,7 +200,7 @@ def main():
     """ 3.j """
     return
     # Display representative examples of each cluster for clustering algorithms
-    np.random.seed(42)
+    np.random.seed(4222)
     kmeans = k_means(points, 1, 'random')
     kpp = k_means(points, 1, 'kpp')
     spectral = spectral_clustering(points, 1)
