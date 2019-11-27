@@ -34,8 +34,15 @@ class Point(object):
         """
         # TODO: Implement this function
         res = 0
-        for i in range(len(self.features)):
-            res += (self.features[i] - other.features[i]) ** 2
+        #print(self.get_features())
+        my_feature = self.get_features()
+        # print('---------')
+        # print(type(self))
+        # print(type(other))
+        # print('---------')
+        other_feature = other.get_features()
+        for i in range(len(my_feature)):
+            res += (my_feature[i] - other_feature[i]) ** 2
         return sqrt(res)
 
     def get_label(self):
@@ -47,7 +54,7 @@ class Cluster(object):
     A Cluster is defined as a set of elements
     """
 
-    def __init__(self, points):
+    def __init__(self, points = []):
         """
         Elements of a cluster are saved in a list, self.points
         """
@@ -74,10 +81,14 @@ class Cluster(object):
     def get_centroid(self):
         """Returns centroid of the cluster"""
         n = len(self.points[0].features)
-        features = np.zeros((n,1))
+        points = self.get_points()
+        #print(points[0].features.shape)
+        #n, d = points[0].features.shape
+        features = points[0].features.shape
         label = None
-        for i in range(len(self.points)):
-            features += self.points[i].features
+        for i in range(1, len(self.points)):
+            #print(points[i].get_features().shape)
+            features += self.points[i].get_features()
         features = features.astype(float)
         features /= len(self.points)
         p = Point(features, label)
@@ -128,7 +139,7 @@ class ClusterSet(object):
         """Returns centroids of each cluster in the ClusterSet as a list"""
         cs = []
         for c in self.clusters:
-            cs.append(c.get_centroid)
+            cs.append(c.get_centroid())
         return cs
         # TODO: Implement this function
 
