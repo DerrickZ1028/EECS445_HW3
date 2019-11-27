@@ -77,70 +77,51 @@ def k_means(points, k, init='random'):
     """
     # TODO: Implement this function
     c_set = ClusterSet()
+    assert(len(c_set.get_clusters()) == 0)
     cs = []
     if init == 'random':
         cs = random_init(points, k)
     if init == 'kpp':
         cs = k_means_pp_init(points, k)
-    clu_list = []
+    cluster = []
     for i in range(k):
-        clus = Cluster(points= [])
-        assert(len(clus.points) == 0)
-        #clus.points.append(cs[i])
-        clu_list.append(clus)
-    # print('clu_list length:')
-    # print(len(clu_list))
-    # print(len(points))
-    count = 0
-    assert(len(clu_list[0].points) == 0)
+        cluster.append([])
     for point in points:
-        # print('count')
-        # print(count)
-        count += 1
         index = 0
-        dis = 100000
+        dis = 1e30
         for i in range(k):
             if point.distance(cs[i]) < dis:
                 dis = point.distance(cs[i])
                 index = i
-        clu_list[index].points.append(point)
-        # print('appending to : {},l'.format(index))
-        # print(len(clu_list[index].points))
-    for clus in clu_list:
-        # print('----')
-        # print(len(clus.points))
-        # print('----')
-        c_set.add(clus)
+        cluster[index].append(point)
+    for i in range(k):
+        c_set.add(Cluster(cluster[i]))
     score = c_set.get_score()
-    print('k:{}, score:{}'.format(k,score))
-    old_score = score
-    diff = 1
-    while diff > 1e-3:
-        cs = c_set.get_centroids()
-        #print(cs)
-        clu_list = []
-        for i in range(k):
-            clus = Cluster(points=[])
-            assert(len(clus.points)==0)
-            #clus.points.append(cs[i])
-            clu_list.append(clus)
-        for point in points:
-            index = 0
-            dis = 100000
-            for i in range(k):
-                #print(type(cs[i]))
-                if point.distance(cs[i]) < dis:
-                    dis = point.distance(cs[i])
-                    index = i
-            clu_list[index].points.append(point)
-        c_set = ClusterSet()
-        for clus in clu_list:
-            c_set.add(clus)
-        score = c_set.get_score()
-        print('k:{}, score:{}'.format(k,score))
-        diff = score - old_score
-        old_score = score
+    next_score,c_temp = cal_next_score(points, k, c_set)
+    while(next_score > score):
+        c_set = c_temp
+        score = next_score
+        next_score, c_temp = cal_next_score(points, k, c_set)
     return c_set
+
+def cal_next_score(points, k, c_set):
+    cs = c_set.get_centroids()
+    c_set = ClusterSet()
+    cluster = []
+    for i in range(k):
+        cluster.append([])
+    for point in points:
+        index = 0
+        dis = 1e30
+        for i in range(k):
+            if point.distance(cs[i]) < dis:
+                dis = point.distance(cs[i])
+                index = i
+        cluster[index].append(point)
+    for i in range(k):
+        c_set.add(Cluster(cluster[i]))
+    score = c_set.get_score()
+    return score, c_set
 
 def spectral_clustering(points, k):
     """

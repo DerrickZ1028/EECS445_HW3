@@ -54,7 +54,7 @@ class Cluster(object):
     A Cluster is defined as a set of elements
     """
 
-    def __init__(self, points = []):
+    def __init__(self, points):
         """
         Elements of a cluster are saved in a list, self.points
         """
@@ -76,6 +76,9 @@ class Cluster(object):
             with the most common label"""
         labels = [point.get_label() for point in self.points]
         cluster_label, count = stats.mode(labels)
+        #print('count:{}'.format(count))
+        if count == []:
+            count = 0
         return len(labels), np.float64(count)
 
     def get_centroid(self):
@@ -92,6 +95,7 @@ class Cluster(object):
         features = features.astype(float)
         features /= len(self.points)
         p = Point(features, label)
+        #print(features)
         return p
         # TODO: Implement this function
 
@@ -152,9 +156,11 @@ class ClusterSet(object):
         total = 0
         for c in self.clusters:
             n, n_correct = c.get_purity()
+            # print('n:{}'.format(n))
+            # print('n_co:{}'.format(n_correct))
             total = total + n
             total_correct = total_correct + n_correct
-
+        #print(total_correct)
         return total_correct / float(total)
 
     def num_clusters(self):
