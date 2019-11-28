@@ -21,7 +21,10 @@ def random_init(points, k):
         List of k unique points randomly selected from points
     """
     # TODO: Implement this function
-    rand = np.random.randint(len(points),size = k)
+    n = len(points)
+    prob = np.ones((n))/n
+    index = range(n)
+    rand = random.choice(index, k, p = prob, replace = False)
     cs = []
     for i in range(k):
         cs.append(points[rand[i]])
@@ -179,32 +182,43 @@ def main():
     points = get_data()
     # TODO: Implement this function
     # for 3.h and 3.i
-    k_mean_score = []
-    kpp_score = []
-    spe_score = []
-    for k in range(1,11):
-        print('k = {}'.format(k))
-        print('k_mean:')
-        k_cs = k_means(points, k, 'random')
-        k_mean_score.append(k_cs.get_score())
-        print(k_mean_score[k-1])
-        print('kpp:')
-        kpp_cs = k_means(points, k, 'kpp')
-        kpp_score.append(kpp_cs.get_score())
-        print(kpp_score[k-1])
-        print('spec:')
-        s_cs = spectral_clustering(points, k)
-        spe_score.append(s_cs.get_score())
-        print(spe_score[k-1])
-    plot_performance(k_mean_score, kpp_score, spe_score,10)
+    # k_mean_score = []
+    # kpp_score = []
+    # spe_score = []
+    # for k in range(1,11):
+    #     k_s = []
+    #     kpp_s = []
+    #     s_s = []
+    #     for _ in range(10):
+    #         k_cs = k_means(points, k, 'random')
+    #         k_s.append(k_cs.get_score())
+    #         kpp_cs = k_means(points, k, 'kpp')
+    #         kpp_s.append(kpp_cs.get_score())
+    #         s_cs = spectral_clustering(points, k)
+    #         s_s.append(s_cs.get_score())
+    #     k_mean_score.append(np.mean(k_s))
+    #     kpp_score.append(np.mean(kpp_s))
+    #     spe_score.append(np.mean(s_s))
+    #     #print(spe_score[k-1])
+    # plot_performance(k_mean_score, kpp_score, spe_score,10)
     """ 3.j """
-    return
     # Display representative examples of each cluster for clustering algorithms
-    np.random.seed(4222)
-    kmeans = k_means(points, 1, 'random')
-    kpp = k_means(points, 1, 'kpp')
-    spectral = spectral_clustering(points, 1)
-    visualize_clusters(kmeans, kpp, spectral)
+    np.random.seed(42)
+    k_s = []
+    kpp_s = []
+    s_s = []
+    for _ in range(10):
+
+        kmeans = k_means(points, 2, 'random')
+        kpp = k_means(points, 2, 'kpp')
+        spectral = spectral_clustering(points, 2)
+        k_s.append(kmeans.get_score())
+        kpp_s.append(kpp.get_score())
+        s_s.append(spectral.get_score())
+    #visualize_clusters(kmeans, kpp, spectral)
+    print('kmean: max:{}, min:{}, avg{}'.format(np.amax(k_s), np.amin(k_s), np.mean(k_s)))
+    print('kpp: max:{}, min:{}, avg{}'.format(np.amax(kpp_s), np.amin(kpp_s), np.mean(kpp_s)))
+    print('spec: max:{}, min:{}, avg{}'.format(np.amax(s_s), np.amin(s_s), np.mean(s_s)))
 
 if __name__ == '__main__':
     main()
